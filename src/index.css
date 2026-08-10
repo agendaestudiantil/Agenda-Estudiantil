@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/* Custom theme for Agenda Estudiantil */
+@theme {
+  --color-primary: #f472b6;
+  --color-primary-light: #fbcfe8;
+  --color-primary-dark: #ec4899;
+  --color-secondary: #a78bfa;
+  --color-secondary-light: #ddd6fe;
+  --color-accent-yellow: #fde68a;
+  --color-accent-green: #bbf7d0;
+  --color-accent-blue: #bfdbfe;
+  --color-accent-purple: #e9d5ff;
+  --color-accent-pink: #fce7f3;
+  --color-urgent: #f87171;
+  --color-important: #fbbf24;
+  --color-progress: #34d399;
+  --color-bg-gradient-start: #fce4ec;
+  --color-bg-gradient-end: #e8f5e9;
+  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Base styles */
+body {
+  @apply bg-gradient-to-br from-bg-gradient-start via-white to-bg-gradient-end min-h-screen;
+  font-family: var(--font-family-sans);
+}
+
+/* Rainbow gradient header */
+.header-gradient {
+  background: linear-gradient(
+    135deg,
+    #fce4ec 0%,
+    #fff9c4 20%,
+    #c8e6c9 40%,
+    #bbdefb 60%,
+    #e1bee7 80%,
+    #fce4ec 100%
+  );
+}
+
+/* Card styles */
+.card {
+  @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/50 p-4;
+}
+
+/* Priority badges */
+.badge-urgent {
+  @apply bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-important {
+  @apply bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-progress {
+  @apply bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-completed {
+  @apply bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+/* Bottom navigation */
+.nav-item {
+  @apply flex flex-col items-center justify-center gap-1 text-gray-400 transition-colors duration-200;
+}
+
+.nav-item.active {
+  @apply text-primary;
+}
+
+/* Motivational message card */
+.motivational-card {
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+  @apply rounded-2xl p-4 shadow-sm;
+}
+
+/* Smooth page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms, transform 200ms;
+}
