@@ -12,18 +12,18 @@ interface TaskContextType {
   reminders: Reminder[];
   filter: TaskFilter;
   setFilter: (filter: TaskFilter) => void;
-  addTask: (task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'completed_at'>) => void;
+  addTask: (task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'completed_at'>) => Promise<{ error: string | null }>;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTaskComplete: (id: string) => void;
-  addEvent: (event: Omit<Event, 'id' | 'user_id' | 'created_at'>) => void;
+  addEvent: (event: Omit<Event, 'id' | 'user_id' | 'created_at'>) => Promise<{ error: string | null }>;
   deleteEvent: (id: string) => void;
-  addNote: (note: Omit<Note, 'id' | 'user_id' | 'created_at'>) => void;
+  addNote: (note: Omit<Note, 'id' | 'user_id' | 'created_at'>) => Promise<{ error: string | null }>;
   deleteNote: (id: string) => void;
-  addGoal: (goal: Omit<Goal, 'id' | 'user_id' | 'created_at'>) => void;
+  addGoal: (goal: Omit<Goal, 'id' | 'user_id' | 'created_at'>) => Promise<{ error: string | null }>;
   updateGoal: (id: string, updates: Partial<Goal>) => void;
   deleteGoal: (id: string) => void;
-  addReminder: (reminder: Omit<Reminder, 'id' | 'user_id' | 'created_at'>) => void;
+  addReminder: (reminder: Omit<Reminder, 'id' | 'user_id' | 'created_at'>) => Promise<{ error: string | null }>;
   deleteReminder: (id: string) => void;
   getFilteredTasks: () => Task[];
   getTasksForDate: (date: string) => Task[];
@@ -82,18 +82,16 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     };
   }, [userId]);
 
-  const addTask = useCallback((task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'completed_at'>) => {
-    if (!userId) return;
-    void (async () => {
-      const { data } = await supabase
-        .from('tasks')
-        .insert({ ...task, user_id: userId, completed_at: null })
-        .select()
-        .single();
-      if (data) {
-        setTasks(prev => [...prev, data as Task]);
-      }
-    })();
+  const addTask = useCallback(async (task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'completed_at'>): Promise<{ error: string | null }> => {
+    if (!userId) return { error: 'No hay sesión activa.' };
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert({ ...task, user_id: userId, completed_at: null })
+      .select()
+      .single();
+    if (error) return { error: error.message };
+    setTasks(prev => [...prev, data as Task]);
+    return { error: null };
   }, [userId]);
 
   const updateTask = useCallback((id: string, updates: Partial<Task>) => {
@@ -130,18 +128,16 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     })();
   }, [tasks]);
 
-  const addEvent = useCallback((event: Omit<Event, 'id' | 'user_id' | 'created_at'>) => {
-    if (!userId) return;
-    void (async () => {
-      const { data } = await supabase
-        .from('events')
-        .insert({ ...event, user_id: userId })
-        .select()
-        .single();
-      if (data) {
-        setEvents(prev => [...prev, data as Event]);
-      }
-    })();
+  const addEvent = useCallback(async (event: Omit<Event, 'id' | 'user_id' | 'created_at'>): Promise<{ error: string | null }> => {
+    if (!userId) return { error: 'No hay sesión activa.' };
+    const { data, error } = await supabase
+      .from('events')
+      .insert({ ...event, user_id: userId })
+      .select()
+      .single();
+    if (error) return { error: error.message };
+    setEvents(prev => [...prev, data as Event]);
+    return { error: null };
   }, [userId]);
 
   const deleteEvent = useCallback((id: string) => {
@@ -153,18 +149,16 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const addNote = useCallback((note: Omit<Note, 'id' | 'user_id' | 'created_at'>) => {
-    if (!userId) return;
-    void (async () => {
-      const { data } = await supabase
-        .from('notes')
-        .insert({ ...note, user_id: userId })
-        .select()
-        .single();
-      if (data) {
-        setNotes(prev => [...prev, data as Note]);
-      }
-    })();
+  const addNote = useCallback(async (note: Omit<Note, 'id' | 'user_id' | 'created_at'>): Promise<{ error: string | null }> => {
+    if (!userId) return { error: 'No hay sesión activa.' };
+    const { data, error } = await supabase
+      .from('notes')
+      .insert({ ...note, user_id: userId })
+      .select()
+      .single();
+    if (error) return { error: error.message };
+    setNotes(prev => [...prev, data as Note]);
+    return { error: null };
   }, [userId]);
 
   const deleteNote = useCallback((id: string) => {
@@ -176,18 +170,16 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const addGoal = useCallback((goal: Omit<Goal, 'id' | 'user_id' | 'created_at'>) => {
-    if (!userId) return;
-    void (async () => {
-      const { data } = await supabase
-        .from('goals')
-        .insert({ ...goal, user_id: userId })
-        .select()
-        .single();
-      if (data) {
-        setGoals(prev => [...prev, data as Goal]);
-      }
-    })();
+  const addGoal = useCallback(async (goal: Omit<Goal, 'id' | 'user_id' | 'created_at'>): Promise<{ error: string | null }> => {
+    if (!userId) return { error: 'No hay sesión activa.' };
+    const { data, error } = await supabase
+      .from('goals')
+      .insert({ ...goal, user_id: userId })
+      .select()
+      .single();
+    if (error) return { error: error.message };
+    setGoals(prev => [...prev, data as Goal]);
+    return { error: null };
   }, [userId]);
 
   const updateGoal = useCallback((id: string, updates: Partial<Goal>) => {
@@ -208,18 +200,16 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const addReminder = useCallback((reminder: Omit<Reminder, 'id' | 'user_id' | 'created_at'>) => {
-    if (!userId) return;
-    void (async () => {
-      const { data } = await supabase
-        .from('reminders')
-        .insert({ ...reminder, user_id: userId })
-        .select()
-        .single();
-      if (data) {
-        setReminders(prev => [...prev, data as Reminder]);
-      }
-    })();
+  const addReminder = useCallback(async (reminder: Omit<Reminder, 'id' | 'user_id' | 'created_at'>): Promise<{ error: string | null }> => {
+    if (!userId) return { error: 'No hay sesión activa.' };
+    const { data, error } = await supabase
+      .from('reminders')
+      .insert({ ...reminder, user_id: userId })
+      .select()
+      .single();
+    if (error) return { error: error.message };
+    setReminders(prev => [...prev, data as Reminder]);
+    return { error: null };
   }, [userId]);
 
   const deleteReminder = useCallback((id: string) => {

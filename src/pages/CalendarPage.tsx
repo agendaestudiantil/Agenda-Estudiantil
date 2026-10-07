@@ -3,6 +3,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isToday, i
 import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTasks } from '@/context/TaskContext';
+import { formatTime12h } from '@/lib/date';
 
 export function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -121,7 +122,7 @@ export function CalendarPage() {
                   style={{ backgroundColor: event.color }}
                 />
                 <div className="flex-1">
-                  <span className="text-sm font-semibold text-gray-700">{event.time}</span>
+                  <span className="text-sm font-semibold text-gray-700">{formatTime12h(event.time)}</span>
                   <span className="text-sm text-gray-600 ml-3">{event.title}</span>
                 </div>
               </div>

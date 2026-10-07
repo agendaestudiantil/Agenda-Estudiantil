@@ -13,7 +13,7 @@ export interface TaskFormValues {
 interface TaskFormProps {
   initialValues?: Partial<TaskFormValues>;
   submitLabel: string;
-  onSubmit: (values: TaskFormValues) => void;
+  onSubmit: (values: TaskFormValues) => void | Promise<void>;
 }
 
 export function TaskForm({ initialValues, submitLabel, onSubmit }: TaskFormProps) {
@@ -27,7 +27,7 @@ export function TaskForm({ initialValues, submitLabel, onSubmit }: TaskFormProps
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !dueDate) return;
-    onSubmit({
+    void onSubmit({
       title,
       description,
       subject,

@@ -6,6 +6,8 @@ import { TaskForm } from '@/components/TaskForm';
 
 type AddType = 'menu' | 'tarea' | 'evento' | 'nota' | 'meta' | 'recordatorio';
 
+const SAVE_ERROR = 'No se pudo guardar. Revisa los datos e intenta de nuevo.';
+
 const menuItems = [
   { type: 'tarea' as const, icon: CheckSquare, label: 'Nueva Tarea', color: 'bg-emerald-100' },
   { type: 'evento' as const, icon: Calendar, label: 'Nuevo Evento', color: 'bg-yellow-100' },
@@ -14,8 +16,19 @@ const menuItems = [
   { type: 'recordatorio' as const, icon: Star, label: 'Recordatorio', color: 'bg-blue-100' },
 ];
 
+function SubmitError({ message }: { message: string | null }) {
+  if (!message) return null;
+  return (
+    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+      {message}
+    </div>
+  );
+}
+
 export function AddPage() {
   const [currentView, setCurrentView] = useState<AddType>('menu');
+  const [taskError, setTaskError] = useState<string | null>(null);
+  const [taskSubmitting, setTaskSubmitting] = useState(false);
   const navigate = useNavigate();
   const { addTask, addEvent, addNote, addGoal, addReminder } = useTasks();
 
@@ -52,35 +65,76 @@ export function AddPage() {
       {currentView === 'tarea' && (
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-gray-800">Nueva Tarea</h2>
+          <SubmitError message={taskError} />
           <TaskForm
-            submitLabel="Guardar Tarea"
-            onSubmit={(v) => { addTask({ ...v, status: 'pendiente' }); navigate('/tareas'); }}
+            submitLabel={taskSubmitting ? 'Guardando...' : 'Guardar Tarea'}
+            onSubmit={async (v) => {
+              setTaskSubmitting(true);
+              setTaskError(null);
+              const { error } = await addTask({ ...v, status: 'pendiente' });
+              setTaskSubmitting(false);
+              if (error) {
+                setTaskError(SAVE_ERROR);
+                return;
+              }
+              navigate('/tareas');
+            }}
           />
         </div>
       )}
-      {currentView === 'evento' && <AddEventForm onSubmit={(event) => { addEvent(event); navigate('/calendario'); }} />}
-      {currentView === 'nota' && <AddNoteForm onSubmit={(note) => { addNote(note); navigate('/tareas'); }} />}
-      {currentView === 'meta' && <AddGoalForm onSubmit={(goal) => { addGoal(goal); navigate('/perfil'); }} />}
-      {currentView === 'recordatorio' && <AddReminderForm onSubmit={(reminder) => { addReminder(reminder); navigate('/'); }} />}
+      {currentView === 'evento' && (
+        <AddEventForm onSubmit={async (event) => {
+          const { error } = await addEvent(event);
+          if (!error) navigate('/calendario');
+          return { error };
+        }} />
+      )}
+      {currentView === 'nota' && (
+        <AddNoteForm onSubmit={async (note) => {
+          const { error } = await addNote(note);
+          if (!error) navigate('/tareas');
+          return { error };
+        }} />
+      )}
+      {currentView === 'meta' && (
+        <AddGoalForm onSubmit={async (goal) => {
+          const { error } = await addGoal(goal);
+          if (!error) navigate('/perfil');
+          return { error };
+        }} />
+      )}
+      {currentView === 'recordatorio' && (
+        <AddReminderForm onSubmit={async (reminder) => {
+          const { error } = await addReminder(reminder);
+          if (!error) navigate('/');
+          return { error };
+        }} />
+      )}
     </div>
   );
 }
 
 // --- Sub-forms ---
 
-function AddEventForm({ onSubmit }: { onSubmit: (event: { title: string; description: string; date: string; time: string; color: string }) => void }) {
+function AddEventForm({ onSubmit }: { onSubmit: (event: { title: string; description: string; date: string; time: string; color: string }) => Promise<{ error: string | null }> }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [color, setColor] = useState('#60a5fa');
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const colors = ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#59BA6D', '#149656'];
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !date || !time) return;
-    onSubmit({ title, description, date, time, color });
+    setSubmitting(true);
+    setSubmitError(null);
+    const { error } = await onSubmit({ title, description, date, time, color });
+    setSubmitting(false);
+    if (error) setSubmitError(SAVE_ERROR);
   }
 
   return (
@@ -117,21 +171,28 @@ function AddEventForm({ onSubmit }: { onSubmit: (event: { title: string; descrip
         </div>
       </div>
 
-      <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors shadow-sm">
-        Guardar Evento
+      <SubmitError message={submitError} />
+      <button type="submit" disabled={submitting} className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
+        {submitting ? 'Guardando...' : 'Guardar Evento'}
       </button>
     </form>
   );
 }
 
-function AddNoteForm({ onSubmit }: { onSubmit: (note: { title: string; content: string }) => void }) {
+function AddNoteForm({ onSubmit }: { onSubmit: (note: { title: string; content: string }) => Promise<{ error: string | null }> }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !content) return;
-    onSubmit({ title, content });
+    setSubmitting(true);
+    setSubmitError(null);
+    const { error } = await onSubmit({ title, content });
+    setSubmitting(false);
+    if (error) setSubmitError(SAVE_ERROR);
   }
 
   return (
@@ -145,22 +206,29 @@ function AddNoteForm({ onSubmit }: { onSubmit: (note: { title: string; content: 
         <label className="text-sm font-medium text-gray-700 block mb-1">Contenido *</label>
         <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Escribe tu nota aquí..." rows={5} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none resize-none" required />
       </div>
-      <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors shadow-sm">
-        Guardar Nota
+      <SubmitError message={submitError} />
+      <button type="submit" disabled={submitting} className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
+        {submitting ? 'Guardando...' : 'Guardar Nota'}
       </button>
     </form>
   );
 }
 
-function AddGoalForm({ onSubmit }: { onSubmit: (goal: { title: string; description: string; progress: number; completed: boolean; target_date: string }) => void }) {
+function AddGoalForm({ onSubmit }: { onSubmit: (goal: { title: string; description: string; progress: number; completed: boolean; target_date: string }) => Promise<{ error: string | null }> }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [targetDate, setTargetDate] = useState('');
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !targetDate) return;
-    onSubmit({ title, description, progress: 0, completed: false, target_date: targetDate });
+    setSubmitting(true);
+    setSubmitError(null);
+    const { error } = await onSubmit({ title, description, progress: 0, completed: false, target_date: targetDate });
+    setSubmitting(false);
+    if (error) setSubmitError(SAVE_ERROR);
   }
 
   return (
@@ -178,22 +246,29 @@ function AddGoalForm({ onSubmit }: { onSubmit: (goal: { title: string; descripti
         <label className="text-sm font-medium text-gray-700 block mb-1">Fecha objetivo *</label>
         <input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none" required />
       </div>
-      <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors shadow-sm">
-        Guardar Meta
+      <SubmitError message={submitError} />
+      <button type="submit" disabled={submitting} className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
+        {submitting ? 'Guardando...' : 'Guardar Meta'}
       </button>
     </form>
   );
 }
 
-function AddReminderForm({ onSubmit }: { onSubmit: (reminder: { task_id: string | null; title: string; message: string; remind_at: string; active: boolean }) => void }) {
+function AddReminderForm({ onSubmit }: { onSubmit: (reminder: { task_id: string | null; title: string; message: string; remind_at: string; active: boolean }) => Promise<{ error: string | null }> }) {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [remindAt, setRemindAt] = useState('');
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !remindAt) return;
-    onSubmit({ task_id: null, title, message, remind_at: remindAt, active: true });
+    setSubmitting(true);
+    setSubmitError(null);
+    const { error } = await onSubmit({ task_id: null, title, message, remind_at: remindAt, active: true });
+    setSubmitting(false);
+    if (error) setSubmitError(SAVE_ERROR);
   }
 
   return (
@@ -211,8 +286,9 @@ function AddReminderForm({ onSubmit }: { onSubmit: (reminder: { task_id: string 
         <label className="text-sm font-medium text-gray-700 block mb-1">Fecha y hora *</label>
         <input type="datetime-local" value={remindAt} onChange={(e) => setRemindAt(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none" required />
       </div>
-      <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors shadow-sm">
-        Guardar Recordatorio
+      <SubmitError message={submitError} />
+      <button type="submit" disabled={submitting} className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
+        {submitting ? 'Guardando...' : 'Guardar Recordatorio'}
       </button>
     </form>
   );
