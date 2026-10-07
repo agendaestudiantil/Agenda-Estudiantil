@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
-/* Custom theme for Agenda Estudiantil */
+/* Custom theme for Agenda Estudiantil — paleta Colegio Bethel Yopal */
 @theme {
-  --color-primary: #f472b6;
-  --color-primary-light: #fbcfe8;
-  --color-primary-dark: #ec4899;
-  --color-secondary: #a78bfa;
-  --color-secondary-light: #ddd6fe;
-  --color-accent-yellow: #fde68a;
+  --color-primary: #149656;        /* verde esmeralda — acciones principales */
+  --color-primary-light: #bbf7d0;
+  --color-primary-dark: #327444;   /* verde oscuro — hover */
+  --color-secondary: #59BA6D;      /* verde principal — nav activo / hoy */
+  --color-secondary-light: #d1fae5;
+  --color-accent-yellow: #FFE51D;  /* amarillo Bethel (solo acento) */
   --color-accent-green: #bbf7d0;
   --color-accent-blue: #bfdbfe;
-  --color-accent-purple: #e9d5ff;
-  --color-accent-pink: #fce7f3;
+  --color-accent-mint: #d1fae5;
+  --color-accent-sage: #dcfce7;
   --color-urgent: #f87171;
   --color-important: #fbbf24;
   --color-progress: #34d399;
-  --color-bg-gradient-start: #fce4ec;
-  --color-bg-gradient-end: #e8f5e9;
+  --color-bg-gradient-start: #e8f5e9;
+  --color-bg-gradient-end: #d1fae5;
   --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -26,16 +26,13 @@ body {
   font-family: var(--font-family-sans);
 }
 
-/* Rainbow gradient header */
+/* Green brand gradient header */
 .header-gradient {
   background: linear-gradient(
     135deg,
-    #fce4ec 0%,
-    #fff9c4 20%,
-    #c8e6c9 40%,
-    #bbdefb 60%,
-    #e1bee7 80%,
-    #fce4ec 100%
+    #d1fae5 0%,
+    #a7f3d0 40%,
+    #59BA6D 100%
   );
 }
 
@@ -58,7 +55,7 @@ body {
 }
 
 .badge-completed {
-  @apply bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold;
+  @apply bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold;
 }
 
 /* Bottom navigation */
@@ -70,9 +67,9 @@ body {
   @apply text-primary;
 }
 
-/* Motivational message card */
+/* Motivational message card — acento amarillo Bethel (texto oscuro para contraste) */
 .motivational-card {
-  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+  background: linear-gradient(135deg, #FFF9C4 0%, #FFE51D 60%);
   @apply rounded-2xl p-4 shadow-sm;
 }
 

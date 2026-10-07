@@ -25,14 +25,14 @@ export function BottomNav() {
               onClick={() => navigate(path)}
               className={`nav-item p-2 rounded-xl transition-all duration-200 ${
                 isActive
-                  ? 'text-pink-500 bg-pink-50 scale-110'
+                  ? 'text-emerald-600 bg-emerald-50 scale-110'
                   : 'text-gray-400 hover:text-gray-600'
               }`}
               aria-label={label}
               aria-current={isActive ? 'page' : undefined}
             >
               {isActive && path === '/agregar' ? (
-                <div className="w-10 h-10 rounded-full bg-emerald-400 flex items-center justify-center shadow-lg -mt-4">
+                <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg -mt-4">
                   <Icon size={20} className="text-white" />
                 </div>
               ) : (

@@ -5,6 +5,7 @@ import { Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTasks } from '@/context/TaskContext';
 import { getDailyMessage } from '@/data/motivational-messages';
 import { getPriorityColor, getPriorityLabel } from '@/lib/priority';
+import { parseLocalDate } from '@/lib/date';
 
 export function HomePage() {
   const { tasks, getFilteredTasks } = useTasks();
@@ -51,7 +52,7 @@ export function HomePage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
                   <p className="text-xs text-gray-500">
-                    {format(new Date(task.due_date), "dd 'de' MMM", { locale: es })}
+                    {format(parseLocalDate(task.due_date), "dd 'de' MMM", { locale: es })}
                   </p>
                 </div>
                 <span className={`${getPriorityColor(task.priority)} px-2 py-0.5 rounded-full text-xs font-medium`}>
@@ -98,7 +99,7 @@ export function HomePage() {
                 key={day.toISOString()}
                 className={`relative text-sm py-1.5 rounded-full transition-colors ${
                   today
-                    ? 'bg-emerald-400 text-white font-bold'
+                    ? 'bg-emerald-500 text-white font-bold'
                     : isSameMonth(day, currentMonth)
                       ? 'text-gray-700 hover:bg-gray-100'
                       : 'text-gray-300'
@@ -106,7 +107,7 @@ export function HomePage() {
               >
                 {format(day, 'd')}
                 {hasTasks && !today && (
-                  <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-pink-400" />
+                  <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-500" />
                 )}
               </div>
             );
@@ -117,14 +118,14 @@ export function HomePage() {
       {/* Motivational message */}
       <div className="motivational-card">
         <div className="flex items-start gap-2">
-          <Heart size={18} className="text-purple-500 mt-0.5 shrink-0" fill="currentColor" />
+          <Heart size={18} className="text-emerald-600 mt-0.5 shrink-0" fill="currentColor" />
           <div>
             <h4 className="font-semibold text-gray-800 text-sm mb-1">Mensaje Motivacional</h4>
             <p className="text-sm text-gray-700 leading-relaxed">
               {motivationalMessage.text} {motivationalMessage.emoji}
             </p>
           </div>
-          <Heart size={14} className="text-purple-400 shrink-0 self-end" fill="currentColor" />
+          <Heart size={14} className="text-emerald-500 shrink-0 self-end" fill="currentColor" />
         </div>
       </div>
     </div>

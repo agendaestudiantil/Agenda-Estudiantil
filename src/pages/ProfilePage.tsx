@@ -18,7 +18,7 @@ export function ProfilePage() {
       <div className="card flex flex-col items-center py-6">
         {/* Avatar */}
         <div className="relative">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center shadow-md">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-200 to-green-300 flex items-center justify-center shadow-md">
             <span className="text-4xl">👩‍🎓</span>
           </div>
           <button
@@ -32,7 +32,7 @@ export function ProfilePage() {
         {/* Name & info */}
         <h2 className="mt-3 text-lg font-bold text-gray-800">{user?.name}</h2>
         <p className="text-sm text-gray-500">{user?.email}</p>
-        <span className="mt-2 px-4 py-1 bg-pink-100 text-pink-600 rounded-full text-xs font-medium">
+        <span className="mt-2 px-4 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
           {user?.role}
         </span>
 
@@ -69,7 +69,7 @@ export function ProfilePage() {
       {/* Sign out */}
       <button
         onClick={signOut}
-        className="w-full py-3 bg-pink-100 hover:bg-pink-200 text-pink-600 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+        className="w-full py-3 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
       >
         <LogOut size={18} />
         Cerrar Sesión

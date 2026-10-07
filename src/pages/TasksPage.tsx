@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Plus } from 'lucide-react';
+import { Calendar, Plus, Pencil, Trash2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTasks } from '@/context/TaskContext';
 import { getPriorityColor, getPriorityLabel } from '@/lib/priority';
+import { parseLocalDate } from '@/lib/date';
+import { TaskForm } from '@/components/TaskForm';
 import type { TaskFilter } from '@/types';
 
 const filters: { key: TaskFilter; label: string }[] = [
@@ -14,9 +17,10 @@ const filters: { key: TaskFilter; label: string }[] = [
 ];
 
 export function TasksPage() {
-  const { filter, setFilter, getFilteredTasks, toggleTaskComplete } = useTasks();
+  const { filter, setFilter, getFilteredTasks, toggleTaskComplete, updateTask, deleteTask } = useTasks();
   const navigate = useNavigate();
   const filteredTasks = getFilteredTasks();
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   return (
     <div className="space-y-4">
@@ -25,7 +29,7 @@ export function TasksPage() {
         <h1 className="text-xl font-bold text-gray-800">Mis Tareas</h1>
         <button
           onClick={() => navigate('/agregar')}
-          className="flex items-center gap-1 text-sm font-medium text-pink-500 hover:text-pink-600 transition-colors"
+          className="flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
         >
           <Plus size={18} />
           Nueva Tarea
@@ -40,7 +44,7 @@ export function TasksPage() {
             onClick={() => setFilter(key)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
               filter === key
-                ? 'bg-pink-100 text-pink-700 shadow-sm'
+                ? 'bg-emerald-100 text-emerald-700 shadow-sm'
                 : 'bg-white/70 text-gray-500 hover:bg-gray-100'
             }`}
           >
@@ -56,21 +60,47 @@ export function TasksPage() {
             <p className="text-gray-400 text-sm">No hay tareas en esta categoría</p>
             <button
               onClick={() => navigate('/agregar')}
-              className="mt-3 text-pink-500 text-sm font-medium hover:underline"
+              className="mt-3 text-emerald-600 text-sm font-medium hover:underline"
             >
               Crear una nueva tarea
             </button>
           </div>
         ) : (
           filteredTasks.map(task => (
+            editingId === task.id ? (
+              <div key={task.id} className="card">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-gray-800">Editar Tarea</h3>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label="Cancelar edición"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+                <TaskForm
+                  initialValues={{
+                    title: task.title,
+                    description: task.description,
+                    subject: task.subject,
+                    priority: task.priority,
+                    due_date: task.due_date,
+                    reminder_days_before: task.reminder_days_before,
+                  }}
+                  submitLabel="Guardar Cambios"
+                  onSubmit={(v) => { updateTask(task.id, v); setEditingId(null); }}
+                />
+              </div>
+            ) : (
             <div key={task.id} className="card flex items-start gap-3">
               {/* Checkbox */}
               <button
                 onClick={() => toggleTaskComplete(task.id)}
                 className={`w-5 h-5 rounded border-2 shrink-0 mt-0.5 transition-colors ${
                   task.status === 'completada'
-                    ? 'bg-emerald-400 border-emerald-400'
-                    : 'border-gray-300 hover:border-pink-400'
+                    ? 'bg-emerald-500 border-emerald-500'
+                    : 'border-gray-300 hover:border-emerald-500'
                 }`}
                 aria-label={`Marcar "${task.title}" como ${task.status === 'completada' ? 'pendiente' : 'completada'}`}
               >
@@ -89,17 +119,34 @@ export function TasksPage() {
                   }`}>
                     {task.title}
                   </h3>
-                  <span className={`${getPriorityColor(task.priority)} px-2 py-0.5 rounded-full text-xs font-medium shrink-0`}>
-                    {getPriorityLabel(task.priority)}
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`${getPriorityColor(task.priority)} px-2 py-0.5 rounded-full text-xs font-medium`}>
+                      {getPriorityLabel(task.priority)}
+                    </span>
+                    <button
+                      onClick={() => setEditingId(task.id)}
+                      className="text-gray-400 hover:text-emerald-600 transition-colors"
+                      aria-label={`Editar "${task.title}"`}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      onClick={() => deleteTask(task.id)}
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      aria-label={`Eliminar "${task.title}"`}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </div>
                 <p className="text-xs text-gray-500 mt-1 line-clamp-2">{task.description}</p>
                 <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
                   <Calendar size={12} />
-                  <span>{format(new Date(task.due_date), "dd / MM / yyyy", { locale: es })}</span>
+                  <span>{format(parseLocalDate(task.due_date), "dd / MM / yyyy", { locale: es })}</span>
                 </div>
               </div>
             </div>
+            )
           ))
         )}
       </div>

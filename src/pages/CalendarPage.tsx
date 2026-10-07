@@ -81,17 +81,17 @@ export function CalendarPage() {
                 onClick={() => setSelectedDate(day)}
                 className={`relative text-sm py-2.5 rounded-full transition-all ${
                   today && isSelected
-                    ? 'bg-emerald-400 text-white font-bold shadow-md scale-110'
+                    ? 'bg-emerald-500 text-white font-bold shadow-md scale-110'
                     : today
-                      ? 'bg-emerald-400 text-white font-bold'
+                      ? 'bg-emerald-500 text-white font-bold'
                       : isSelected
-                        ? 'bg-pink-100 text-pink-700 font-semibold'
+                        ? 'bg-emerald-100 text-emerald-700 font-semibold'
                         : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
                 {format(day, 'd')}
                 {hasEvents && !today && (
-                  <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-pink-400" />
+                  <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 )}
               </button>
             );
@@ -128,7 +128,7 @@ export function CalendarPage() {
             ))}
             {tasksForDay.map(task => (
               <div key={task.id} className="card flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full shrink-0 bg-pink-400" />
+                <div className="w-3 h-3 rounded-full shrink-0 bg-emerald-500" />
                 <div className="flex-1">
                   <span className="text-sm font-semibold text-gray-700">📝</span>
                   <span className="text-sm text-gray-600 ml-2">{task.title}</span>
