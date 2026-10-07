@@ -24,6 +24,7 @@ interface TaskContextType {
   updateGoal: (id: string, updates: Partial<Goal>) => void;
   deleteGoal: (id: string) => void;
   addReminder: (reminder: Omit<Reminder, 'id' | 'user_id' | 'created_at'>) => Promise<{ error: string | null }>;
+  updateReminder: (id: string, updates: Partial<Reminder>) => void;
   deleteReminder: (id: string) => void;
   getFilteredTasks: () => Task[];
   getTasksForDate: (date: string) => Task[];
@@ -212,6 +213,15 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     return { error: null };
   }, [userId]);
 
+  const updateReminder = useCallback((id: string, updates: Partial<Reminder>) => {
+    void (async () => {
+      const { error } = await supabase.from('reminders').update(updates).eq('id', id);
+      if (!error) {
+        setReminders(prev => prev.map(r => (r.id === id ? { ...r, ...updates } : r)));
+      }
+    })();
+  }, []);
+
   const deleteReminder = useCallback((id: string) => {
     void (async () => {
       const { error } = await supabase.from('reminders').delete().eq('id', id);
@@ -251,7 +261,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       setFilter, addTask, updateTask, deleteTask, toggleTaskComplete,
       addEvent, deleteEvent, addNote, deleteNote,
       addGoal, updateGoal, deleteGoal,
-      addReminder, deleteReminder,
+      addReminder, updateReminder, deleteReminder,
       getFilteredTasks, getTasksForDate, getEventsForDate,
     }}>
       {children}

@@ -9,6 +9,11 @@ import { CalendarPage } from '@/pages/CalendarPage';
 import { AddPage } from '@/pages/AddPage';
 import { MessagesPage } from '@/pages/MessagesPage';
 import { ProfilePage } from '@/pages/ProfilePage';
+import { PersonalInfoPage } from '@/pages/profile/PersonalInfoPage';
+import { GoalsPage } from '@/pages/profile/GoalsPage';
+import { RemindersPage } from '@/pages/profile/RemindersPage';
+import { SettingsPage } from '@/pages/profile/SettingsPage';
+import { HelpPage } from '@/pages/profile/HelpPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 function AppGate() {
@@ -37,6 +42,11 @@ function AppGate() {
             <Route path="/agregar" element={<AddPage />} />
             <Route path="/mensajes" element={<MessagesPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
+            <Route path="/perfil/info" element={<PersonalInfoPage />} />
+            <Route path="/perfil/metas" element={<GoalsPage />} />
+            <Route path="/perfil/recordatorios" element={<RemindersPage />} />
+            <Route path="/perfil/ajustes" element={<SettingsPage />} />
+            <Route path="/perfil/ayuda" element={<HelpPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

@@ -1,15 +1,17 @@
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { User, Target, Star, Settings, HelpCircle, LogOut, Trophy, Flame } from 'lucide-react';
 
 export function ProfilePage() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const menuItems = [
-    { icon: User, label: 'Información Personal', action: () => {} },
-    { icon: Target, label: 'Metas', action: () => {} },
-    { icon: Star, label: 'Recordatorios', action: () => {} },
-    { icon: Settings, label: 'Ajustes', action: () => {} },
-    { icon: HelpCircle, label: 'Ayuda y Soporte', action: () => {} },
+    { icon: User, label: 'Información Personal', action: () => navigate('/perfil/info') },
+    { icon: Target, label: 'Metas', action: () => navigate('/perfil/metas') },
+    { icon: Star, label: 'Recordatorios', action: () => navigate('/perfil/recordatorios') },
+    { icon: Settings, label: 'Ajustes', action: () => navigate('/perfil/ajustes') },
+    { icon: HelpCircle, label: 'Ayuda y Soporte', action: () => navigate('/perfil/ayuda') },
   ];
 
   return (
@@ -17,16 +19,8 @@ export function ProfilePage() {
       {/* Profile card */}
       <div className="card flex flex-col items-center py-6">
         {/* Avatar */}
-        <div className="relative">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-200 to-green-300 flex items-center justify-center shadow-md">
-            <span className="text-4xl">👩‍🎓</span>
-          </div>
-          <button
-            className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center border-2 border-white"
-            aria-label="Cambiar foto"
-          >
-            <span className="text-sm">📷</span>
-          </button>
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-200 to-green-300 flex items-center justify-center shadow-md">
+          <span className="text-4xl">👩‍🎓</span>
         </div>
 
         {/* Name & info */}

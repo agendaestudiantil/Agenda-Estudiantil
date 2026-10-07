@@ -99,14 +99,14 @@ export function AddPage() {
       {currentView === 'meta' && (
         <AddGoalForm onSubmit={async (goal) => {
           const { error } = await addGoal(goal);
-          if (!error) navigate('/perfil');
+          if (!error) navigate('/perfil/metas');
           return { error };
         }} />
       )}
       {currentView === 'recordatorio' && (
         <AddReminderForm onSubmit={async (reminder) => {
           const { error } = await addReminder(reminder);
-          if (!error) navigate('/');
+          if (!error) navigate('/perfil/recordatorios');
           return { error };
         }} />
       )}
