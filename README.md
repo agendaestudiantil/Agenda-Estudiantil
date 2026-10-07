@@ -166,6 +166,7 @@ El desarrollo está organizado en 7 fases. Consulta el detalle completo en [ROAD
 - **Autoras:** Karen Melissa Manosalva Barrera · Sarita Yaniry Perez Vega
 - **Institución:** Colegio Bethel — Grado 11°A
 - **Instructora SENA:** Yesenia Pabon
+- **Desarrollador:** Yilmar Vega — [yilmarvegag.dev](https://yilmarvegag.dev)
 
 ---
 
