@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { UserProfile } from '@/types';
 
@@ -26,17 +26,26 @@ const DEMO_USER: UserProfile = {
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Demo mode when Supabase is not configured
+  const isDemoMode = !import.meta.env.VITE_SUPABASE_URL;
+  const [user, setUser] = useState<UserProfile | null>(isDemoMode ? DEMO_USER : null);
+  const [loading, setLoading] = useState(!isDemoMode);
+
+  const fetchProfile = useCallback(async (userId: string) => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (data) {
+      setUser(data as UserProfile);
+    }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    // Check if Supabase is configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-
-    if (!supabaseUrl) {
-      // Use demo mode
-      setUser(DEMO_USER);
-      setLoading(false);
+    if (isDemoMode) {
       return;
     }
 
@@ -60,35 +69,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
-
-  async function fetchProfile(userId: string) {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (data) {
-      setUser(data as UserProfile);
-    }
-    setLoading(false);
-  }
+  }, [isDemoMode, fetchProfile]);
 
   async function signUp(email: string, password: string, name: string) {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
+    });
     if (error) throw error;
-
-    if (data.user) {
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        name,
-        email,
-        role: 'Estudiante',
-        points: 0,
-        streak: 0,
-      });
-    }
   }
 
   async function signIn(email: string, password: string) {
