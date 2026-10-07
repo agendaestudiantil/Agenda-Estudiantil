@@ -1,14 +1,21 @@
 import { useState } from 'react';
-import type { Priority } from '@/types';
+import type { Priority, TaskStatus } from '@/types';
 
 export interface TaskFormValues {
   title: string;
   description: string;
   subject: string;
   priority: Priority;
+  status: TaskStatus;
   due_date: string;
   reminder_days_before: number;
 }
+
+const statusOptions: { value: TaskStatus; label: string }[] = [
+  { value: 'pendiente', label: 'Pendiente' },
+  { value: 'en_progreso', label: 'En progreso' },
+  { value: 'completada', label: 'Completada' },
+];
 
 interface TaskFormProps {
   initialValues?: Partial<TaskFormValues>;
@@ -21,6 +28,7 @@ export function TaskForm({ initialValues, submitLabel, onSubmit }: TaskFormProps
   const [description, setDescription] = useState(initialValues?.description ?? '');
   const [subject, setSubject] = useState(initialValues?.subject ?? '');
   const [priority, setPriority] = useState<Priority>(initialValues?.priority ?? 'importante');
+  const [status, setStatus] = useState<TaskStatus>(initialValues?.status ?? 'pendiente');
   const [dueDate, setDueDate] = useState(initialValues?.due_date ?? '');
   const [reminderDays, setReminderDays] = useState<number>(initialValues?.reminder_days_before ?? 2);
 
@@ -32,6 +40,7 @@ export function TaskForm({ initialValues, submitLabel, onSubmit }: TaskFormProps
       description,
       subject,
       priority,
+      status,
       due_date: dueDate,
       reminder_days_before: reminderDays,
     });
@@ -90,6 +99,28 @@ export function TaskForm({ initialValues, submitLabel, onSubmit }: TaskFormProps
               }`}
             >
               {p.charAt(0).toUpperCase() + p.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-gray-700 block mb-2">Estado</label>
+        <div className="flex gap-2">
+          {statusOptions.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setStatus(value)}
+              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${
+                status === value
+                  ? value === 'pendiente' ? 'bg-gray-200 text-gray-700 ring-2 ring-gray-300'
+                    : value === 'en_progreso' ? 'bg-yellow-100 text-yellow-800 ring-2 ring-yellow-300'
+                    : 'bg-emerald-100 text-emerald-700 ring-2 ring-emerald-200'
+                  : 'bg-gray-100 text-gray-500'
+              }`}
+            >
+              {label}
             </button>
           ))}
         </div>

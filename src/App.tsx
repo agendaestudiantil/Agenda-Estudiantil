@@ -9,6 +9,7 @@ import { CalendarPage } from '@/pages/CalendarPage';
 import { AddPage } from '@/pages/AddPage';
 import { MessagesPage } from '@/pages/MessagesPage';
 import { ProfilePage } from '@/pages/ProfilePage';
+import { NotFoundPage } from '@/pages/NotFoundPage';
 
 function AppGate() {
   const { user, loading } = useAuth();
@@ -36,6 +37,7 @@ function AppGate() {
             <Route path="/agregar" element={<AddPage />} />
             <Route path="/mensajes" element={<MessagesPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

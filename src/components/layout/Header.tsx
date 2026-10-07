@@ -7,7 +7,7 @@ export function Header() {
     <header className="header-gradient px-4 py-3 shadow-sm">
       {/* Logo Banner */}
       <div className="flex items-center justify-center mb-2">
-        <span className="text-3xl mr-2">🌞📚</span>
+        <img src="/logo-agenda.png" alt="Agenda Estudiantil" className="w-9 h-9 rounded-lg mr-2" />
         <h1 className="text-xl font-bold tracking-wide">
           <span className="text-emerald-700">AGENDA </span>
           <span className="text-emerald-600">ESTUDIANTIL</span>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Calendar, Plus, Pencil, Trash2, X, PlayCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTasks } from '@/context/TaskContext';
 import { getPriorityColor, getPriorityLabel } from '@/lib/priority';
@@ -21,6 +21,28 @@ export function TasksPage() {
   const navigate = useNavigate();
   const filteredTasks = getFilteredTasks();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [exitingId, setExitingId] = useState<string | null>(null);
+
+  function handleConfirmDelete(id: string) {
+    setConfirmingId(null);
+    setExitingId(id);
+    window.setTimeout(() => {
+      deleteTask(id);
+      setExitingId(null);
+    }, 250);
+  }
+
+  const statusBadge: Record<string, string> = {
+    pendiente: 'bg-gray-100 text-gray-600',
+    en_progreso: 'bg-yellow-100 text-yellow-800',
+    completada: 'bg-emerald-100 text-emerald-700',
+  };
+  const statusLabel: Record<string, string> = {
+    pendiente: 'Pendiente',
+    en_progreso: 'En progreso',
+    completada: 'Completada',
+  };
 
   return (
     <div className="space-y-4">
@@ -85,6 +107,7 @@ export function TasksPage() {
                     description: task.description,
                     subject: task.subject,
                     priority: task.priority,
+                    status: task.status,
                     due_date: task.due_date,
                     reminder_days_before: task.reminder_days_before,
                   }}
@@ -93,7 +116,12 @@ export function TasksPage() {
                 />
               </div>
             ) : (
-            <div key={task.id} className="card flex items-start gap-3">
+            <div
+              key={task.id}
+              className={`card flex items-start gap-3 transition-all duration-200 ${
+                exitingId === task.id ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+              }`}
+            >
               {/* Checkbox */}
               <button
                 onClick={() => toggleTaskComplete(task.id)}
@@ -130,19 +158,54 @@ export function TasksPage() {
                     >
                       <Pencil size={15} />
                     </button>
-                    <button
-                      onClick={() => deleteTask(task.id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
-                      aria-label={`Eliminar "${task.title}"`}
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    {confirmingId === task.id ? (
+                      <span className="flex items-center gap-1.5 text-xs">
+                        <span className="text-gray-500">¿Eliminar?</span>
+                        <button
+                          onClick={() => handleConfirmDelete(task.id)}
+                          className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 font-medium hover:bg-red-200 transition-colors"
+                        >
+                          Sí
+                        </button>
+                        <button
+                          onClick={() => setConfirmingId(null)}
+                          className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium hover:bg-gray-200 transition-colors"
+                        >
+                          No
+                        </button>
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmingId(task.id)}
+                        className="text-gray-400 hover:text-red-500 transition-colors"
+                        aria-label={`Eliminar "${task.title}"`}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <p className="text-xs text-gray-500 mt-1 line-clamp-2">{task.description}</p>
-                <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
-                  <Calendar size={12} />
-                  <span>{format(parseLocalDate(task.due_date), "dd / MM / yyyy", { locale: es })}</span>
+                <div className="flex items-center justify-between gap-2 mt-2">
+                  <div className="flex items-center gap-1 text-xs text-gray-400">
+                    <Calendar size={12} />
+                    <span>{format(parseLocalDate(task.due_date), "dd / MM / yyyy", { locale: es })}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`${statusBadge[task.status]} px-2 py-0.5 rounded-full text-xs font-medium`}>
+                      {statusLabel[task.status]}
+                    </span>
+                    {task.status !== 'completada' && task.status !== 'en_progreso' && (
+                      <button
+                        onClick={() => updateTask(task.id, { status: 'en_progreso' })}
+                        className="flex items-center gap-1 text-xs font-medium text-yellow-700 hover:text-yellow-800 transition-colors"
+                        aria-label={`Pasar "${task.title}" a en progreso`}
+                      >
+                        <PlayCircle size={14} />
+                        En progreso
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
