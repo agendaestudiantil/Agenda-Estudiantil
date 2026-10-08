@@ -64,7 +64,13 @@ export function HelpPage() {
           <h2 className="font-semibold">Contacto</h2>
         </div>
         <p className="text-sm text-gray-600">
-          ¿Necesitas ayuda? Escríbenos a <span className="font-medium text-emerald-700">soporte@colegiobethel.edu.co</span>
+          ¿Necesitas ayuda? Escríbenos a{' '}
+          <a
+            href="mailto:agendaestudiantil2026@gmail.com"
+            className="font-medium text-emerald-700 underline hover:text-emerald-800"
+          >
+            agendaestudiantil2026@gmail.com
+          </a>
         </p>
       </div>
     </div>
