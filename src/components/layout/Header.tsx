@@ -1,4 +1,5 @@
 import { useAuth } from '@/context/AuthContext';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 export function Header() {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ export function Header() {
       </div>
 
       {/* User Bar */}
-      <div className="flex items-center bg-white/60 backdrop-blur-sm rounded-full px-4 py-2">
+      <div className="flex items-center justify-between bg-white/60 backdrop-blur-sm rounded-full px-4 py-2">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
             <span className="text-blue-500 text-sm">👤</span>
@@ -24,6 +25,7 @@ export function Header() {
             {user?.name || 'Usuario'}
           </span>
         </div>
+        <NotificationBell />
       </div>
     </header>
   );

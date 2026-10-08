@@ -1,4 +1,5 @@
-import { parseISO } from 'date-fns';
+import { parseISO, startOfDay, differenceInCalendarDays, format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 /**
  * Convierte una cadena de fecha `yyyy-MM-dd` (sin hora) en un Date en hora LOCAL.
@@ -27,4 +28,39 @@ export function formatTime12h(hhmm: string): string {
   const period = hours < 12 ? 'AM' : 'PM';
   const hours12 = hours % 12 === 0 ? 12 : hours % 12;
   return `${hours12}:${match[2]} ${period}`;
+}
+
+/**
+ * Devuelve la medianoche de HOY en hora local.
+ */
+export function startOfTodayLocal(): Date {
+  return startOfDay(new Date());
+}
+
+/**
+ * Indica si la fecha `yyyy-MM-dd` corresponde al día de hoy en hora local.
+ */
+export function isTodayLocal(dateStr: string): boolean {
+  return differenceInCalendarDays(parseLocalDate(dateStr), startOfTodayLocal()) === 0;
+}
+
+/**
+ * Número de días calendario (local) desde `from` (por defecto hoy) hasta `dateStr`.
+ * Negativo = fecha pasada, 0 = hoy, positivo = fecha futura.
+ */
+export function daysBetweenLocal(dateStr: string, from: Date = startOfTodayLocal()): number {
+  return differenceInCalendarDays(parseLocalDate(dateStr), from);
+}
+
+/**
+ * Formatea una fecha `yyyy-MM-dd` o timestamp ISO en una etiqueta relativa en español:
+ * "hoy", "ayer", "mañana", o `d 'de' MMM` (p. ej. "13 de oct").
+ */
+export function formatRelativeDateEs(dateStr: string): string {
+  const date = parseISO(dateStr);
+  const diff = differenceInCalendarDays(startOfDay(date), startOfTodayLocal());
+  if (diff === 0) return 'hoy';
+  if (diff === -1) return 'ayer';
+  if (diff === 1) return 'mañana';
+  return format(date, "d 'de' MMM", { locale: es });
 }

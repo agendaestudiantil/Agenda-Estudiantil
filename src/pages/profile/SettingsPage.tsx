@@ -2,8 +2,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, LogOut, Info } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import {
+  isBrowserNotifSupported,
+  getBrowserNotifPermission,
+  requestBrowserNotifPermission,
+} from '@/lib/notifications';
 
 const PREF_KEY = 'agenda:dailyMessageEnabled';
+const BROWSER_NOTIF_KEY = 'notif_browser_enabled';
 const APP_VERSION = '1.0.0';
 
 export function SettingsPage() {
@@ -13,10 +19,37 @@ export function SettingsPage() {
     return stored === null ? true : stored === 'true';
   });
 
+  const browserSupported = isBrowserNotifSupported();
+  const [browserNotif, setBrowserNotif] = useState(
+    () =>
+      localStorage.getItem(BROWSER_NOTIF_KEY) === 'true' &&
+      getBrowserNotifPermission() === 'granted',
+  );
+  const [browserHelp, setBrowserHelp] = useState('');
+
   function toggleDailyMessage() {
     const next = !dailyMessage;
     setDailyMessage(next);
     localStorage.setItem(PREF_KEY, String(next));
+  }
+
+  async function toggleBrowserNotif() {
+    if (browserNotif) {
+      setBrowserNotif(false);
+      localStorage.setItem(BROWSER_NOTIF_KEY, 'false');
+      setBrowserHelp('');
+      return;
+    }
+    const permission = await requestBrowserNotifPermission();
+    if (permission === 'granted') {
+      setBrowserNotif(true);
+      localStorage.setItem(BROWSER_NOTIF_KEY, 'true');
+      setBrowserHelp('');
+    } else {
+      setBrowserNotif(false);
+      localStorage.setItem(BROWSER_NOTIF_KEY, 'false');
+      setBrowserHelp('Activa los permisos de notificación en tu navegador para recibir avisos.');
+    }
   }
 
   return (
@@ -67,6 +100,36 @@ export function SettingsPage() {
             />
           </button>
         </div>
+      </div>
+
+      <div className="card">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium text-gray-800">Notificaciones del navegador</p>
+            <p className="text-sm text-gray-500">Recibe avisos de tareas y recordatorios</p>
+          </div>
+          {browserSupported ? (
+            <button
+              onClick={toggleBrowserNotif}
+              role="switch"
+              aria-checked={browserNotif}
+              aria-label="Notificaciones del navegador"
+              className={`relative w-12 h-7 rounded-full transition-colors ${browserNotif ? 'bg-emerald-500' : 'bg-gray-300'}`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${browserNotif ? 'translate-x-5' : ''}`}
+              />
+            </button>
+          ) : (
+            <span className="relative w-12 h-7 rounded-full bg-gray-200 opacity-60" aria-hidden="true" />
+          )}
+        </div>
+        {!browserSupported && (
+          <p className="text-sm text-gray-500 mt-2">Tu navegador no admite notificaciones.</p>
+        )}
+        {browserSupported && browserHelp && (
+          <p className="text-sm text-gray-500 mt-2">{browserHelp}</p>
+        )}
       </div>
 
       <button
