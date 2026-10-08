@@ -12,6 +12,7 @@ import { ProfilePage } from '@/pages/ProfilePage';
 import { PersonalInfoPage } from '@/pages/profile/PersonalInfoPage';
 import { GoalsPage } from '@/pages/profile/GoalsPage';
 import { RemindersPage } from '@/pages/profile/RemindersPage';
+import { NotesPage } from '@/pages/profile/NotesPage';
 import { SettingsPage } from '@/pages/profile/SettingsPage';
 import { HelpPage } from '@/pages/profile/HelpPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
@@ -45,6 +46,7 @@ function AppGate() {
             <Route path="/perfil/info" element={<PersonalInfoPage />} />
             <Route path="/perfil/metas" element={<GoalsPage />} />
             <Route path="/perfil/recordatorios" element={<RemindersPage />} />
+            <Route path="/perfil/notas" element={<NotesPage />} />
             <Route path="/perfil/ajustes" element={<SettingsPage />} />
             <Route path="/perfil/ayuda" element={<HelpPage />} />
             <Route path="*" element={<NotFoundPage />} />

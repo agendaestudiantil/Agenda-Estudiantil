@@ -92,7 +92,7 @@ export function AddPage() {
       {currentView === 'nota' && (
         <AddNoteForm onSubmit={async (note) => {
           const { error } = await addNote(note);
-          if (!error) navigate('/tareas');
+          if (!error) navigate('/perfil/notas');
           return { error };
         }} />
       )}
