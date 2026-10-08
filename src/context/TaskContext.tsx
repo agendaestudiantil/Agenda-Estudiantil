@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import type { Task, TaskFilter, Event, Note, Goal, Reminder } from '@/types';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { sortByPriority } from '@/lib/priority';
+import { pointsForCompletion, computeStreak, persistProfileStats } from '@/lib/gamification';
 
 interface TaskContextType {
   tasks: Task[];
@@ -34,7 +35,7 @@ interface TaskContextType {
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export function TaskProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const userId = user?.id ?? null;
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -83,6 +84,20 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     };
   }, [userId]);
 
+  // Gamificación: racha derivada de las tareas completadas.
+  const computedStreak = useMemo(() => computeStreak(tasks), [tasks]);
+
+  // Persiste la racha SOLO cuando cambia respecto al valor guardado. Esto evita
+  // el bucle: si el valor ya coincide con `user.streak`, el cuerpo es un no-op,
+  // por lo que `updateProfile` no se vuelve a invocar en el re-render siguiente.
+  useEffect(() => {
+    if (!user) return;
+    if (computedStreak !== (user.streak ?? 0)) {
+      updateProfile({ streak: computedStreak });
+      void persistProfileStats(user.id, { streak: computedStreak });
+    }
+  }, [computedStreak, user, updateProfile]);
+
   const addTask = useCallback(async (task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'completed_at'>): Promise<{ error: string | null }> => {
     if (!userId) return { error: 'No hay sesión activa.' };
     const { data, error } = await supabase
@@ -125,9 +140,18 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.from('tasks').update(updates).eq('id', id);
       if (!error) {
         setTasks(prev => prev.map(t => (t.id === id ? { ...t, ...updates } : t)));
+        // Gamificación: otorgar puntos SOLO en la transición pendiente→completada.
+        // Al des-completar NO se restan puntos (nunca queda negativo). La racha se
+        // recalcula sola porque `tasks` cambia (ver efecto de racha más abajo).
+        if (isCompleting && user) {
+          const earned = pointsForCompletion(current);
+          const nextPoints = (user.points ?? 0) + earned;
+          updateProfile({ points: nextPoints });
+          void persistProfileStats(user.id, { points: nextPoints });
+        }
       }
     })();
-  }, [tasks]);
+  }, [tasks, user, updateProfile]);
 
   const addEvent = useCallback(async (event: Omit<Event, 'id' | 'user_id' | 'created_at'>): Promise<{ error: string | null }> => {
     if (!userId) return { error: 'No hay sesión activa.' };

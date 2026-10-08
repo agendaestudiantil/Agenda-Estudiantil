@@ -8,21 +8,42 @@ export function NotificationBell() {
   const { alerts, unreadCount, markAllSeen } = useNotifications();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [anchor, setAnchor] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar al hacer clic fuera del panel.
+  // Calcula la posición del panel bajo la campana, alineado al borde derecho
+  // del viewport (el layout está limitado a max-w-lg y centrado).
+  function updateAnchor() {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setAnchor({ top: rect.bottom + 8, right: Math.max(window.innerWidth - rect.right, 8) });
+  }
+
+  // Cerrar al hacer clic fuera. El panel vive en un portal a document.body, por lo
+  // que el click puede caer fuera del wrapper de la campana; tratamos como "dentro"
+  // tanto el botón como el panel portado.
   useEffect(() => {
     if (!open) return;
     function handleClick(event: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
+      const target = event.target as Node;
+      if (buttonRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
+      setOpen(false);
+    }
+    function handleResize() {
+      updateAnchor();
     }
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      window.removeEventListener('resize', handleResize);
+    };
   }, [open]);
 
   function openPanel() {
+    updateAnchor();
     setOpen(true);
     markAllSeen();
   }
@@ -33,8 +54,9 @@ export function NotificationBell() {
   }
 
   return (
-    <div ref={wrapperRef} className="relative">
+    <div className="relative">
       <button
+        ref={buttonRef}
         onClick={() => (open ? setOpen(false) : openPanel())}
         aria-label="Notificaciones"
         aria-expanded={open}
@@ -50,7 +72,9 @@ export function NotificationBell() {
 
       {open && (
         <NotificationPanel
+          ref={panelRef}
           alerts={alerts}
+          anchor={anchor}
           onClose={() => setOpen(false)}
           onNavigate={handleNavigate}
         />

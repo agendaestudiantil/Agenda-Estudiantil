@@ -10,6 +10,7 @@ import { AddPage } from '@/pages/AddPage';
 import { MessagesPage } from '@/pages/MessagesPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { PersonalInfoPage } from '@/pages/profile/PersonalInfoPage';
+import { AchievementsPage } from '@/pages/profile/AchievementsPage';
 import { GoalsPage } from '@/pages/profile/GoalsPage';
 import { RemindersPage } from '@/pages/profile/RemindersPage';
 import { NotesPage } from '@/pages/profile/NotesPage';
@@ -44,6 +45,7 @@ function AppGate() {
             <Route path="/mensajes" element={<MessagesPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
             <Route path="/perfil/info" element={<PersonalInfoPage />} />
+            <Route path="/perfil/logros" element={<AchievementsPage />} />
             <Route path="/perfil/metas" element={<GoalsPage />} />
             <Route path="/perfil/recordatorios" element={<RemindersPage />} />
             <Route path="/perfil/notas" element={<NotesPage />} />

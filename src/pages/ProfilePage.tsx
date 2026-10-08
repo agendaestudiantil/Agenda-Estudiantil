@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { User, Target, Star, FileText, Settings, HelpCircle, LogOut, Trophy, Flame } from 'lucide-react';
+import { User, Target, Star, FileText, Settings, HelpCircle, LogOut, Trophy, Flame, Award } from 'lucide-react';
 
 export function ProfilePage() {
   const { user, signOut } = useAuth();
@@ -8,6 +8,7 @@ export function ProfilePage() {
 
   const menuItems = [
     { icon: User, label: 'Información Personal', action: () => navigate('/perfil/info') },
+    { icon: Award, label: 'Logros', action: () => navigate('/perfil/logros') },
     { icon: Target, label: 'Metas', action: () => navigate('/perfil/metas') },
     { icon: Star, label: 'Recordatorios', action: () => navigate('/perfil/recordatorios') },
     { icon: FileText, label: 'Notas', action: () => navigate('/perfil/notas') },
