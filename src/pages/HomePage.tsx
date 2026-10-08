@@ -6,6 +6,7 @@ import { useTasks } from '@/context/TaskContext';
 import { getDailyMessage } from '@/data/motivational-messages';
 import { getPriorityColor, getPriorityLabel } from '@/lib/priority';
 import { parseLocalDate } from '@/lib/date';
+import { InstallPrompt } from '@/components/InstallPrompt';
 
 export function HomePage() {
   const { tasks, getFilteredTasks } = useTasks();
@@ -42,6 +43,8 @@ export function HomePage() {
 
   return (
     <div className="space-y-4">
+      <InstallPrompt />
+
       {/* Top task preview */}
       {pendingTasks.length > 0 && (
         <div className="card">
